@@ -9,7 +9,7 @@ const { UserModel } = require("./Usermodel");
 
 const app =express();
 app.use(cors());
-app.use(express.urlencoded({extended:true}))
+//app.use(express.urlencoded({extended:true}))
 app.use(express.json());
 
 
@@ -19,7 +19,7 @@ app.get('/',(req,res)=>{
  const authentication = (req, res, next) => {
     const token = req.headers?.authorization?.split(" ")[1]
     try{
-        var decoded = jwt.verify(token, 'abcd12345');
+        var decoded = jwt.verify(token, 'abcd12345')
         req.body.email = decoded.email
         next()
     }
@@ -38,26 +38,36 @@ const authorisation = (permittedrole) => {
             next()
         }
         else{
-            res.send("Not authorised")
+            res.send("Not authorised");
         }
     }
 }
 app.post("/signup", async (req, res) => {
-    const {email, password} = req.body;
-    console.log(email,password,"hello")
-    bcrypt.hash(password, 5, async function(err, hashed_password) {
+    const { email, password} = req.body;
+
+    const isUser = await UserModel.findOne({email})
+    if(isUser){
+        res.send({"msg" : "User already exists, try logging in"});
+    }
+    else {
+        bcrypt.hash(password, 4, async function(err, hash) {
         if(err){
-            res.send({"msg":"Something went wrong, please signup later"})
-           
+            res.send("Something went wrong, please try again later")
         }
         const new_user = new UserModel({
-            email : email,
-            password : hashed_password
+            email,
+            password : hash
         })
-        await new_user.save()
-        res.send({"msg":"Sign up successfull"})
+        try{
+            await new_user.save()
+            res.send({"msg" : "Sign up successfull"});
+        }
+        catch(err){
+            res.send({"msg" : "Something went wrong, please try again"})
+        }
     });
-});
+}
+})
 app.post("/login", async (req, res) => {
     const {email, password} = req.body;
     const user = await UserModel.findOne({email})
@@ -85,18 +95,20 @@ app.post('/Todos',authentication,async (req,res)=>{
     res.send({"msg":"created new todos"})
  });
 app.get('/Todos' ,authentication,async (req,res)=>{
-    const notes = await Todos.find();
+    const notes = await Todos.find(req.query);
+    console.log(req.query);
     res.json(notes);
  });
+ 
  app.put('/Todos/:id' ,authentication,async (req,res)=>{
     const {id} = req.params;
     const {taskname,status,tag} = req.body;
-    const news = await Todos.findByIdAndUpdate(id,taskname,status,tag);
+    const news = await Todos.findByIdAndUpdate(id,taskname,status,tag)
     res.json(news);
 });
 app.delete("/Todos/:id" , async(req,res)=>{
     const {id} = req.params;
-    const posts = await Notes.findById(id);
+    const posts = await Todos.findById(id);
     await posts.remove();
     console.log(id)
     res.send({"msg":"Deleted Successfully"})

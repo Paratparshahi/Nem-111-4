@@ -10,27 +10,27 @@ const Signup = () => {
        const {name,value} = e.target;
        setUser({
         ...user,
-        [name]:value,
+        [name]:value
        })
        console.log(user);
     }
-     function Submit() {
-        fetch('http://localhost:8005/signup', {
+     async function Submit() {
+         fetch('http://localhost:8005/signup', {
             method:"POST",
             headers:{
-                "Content-Type":"application.json"
+                "Content-Type":"application/json",
+                "Accept":"application/json"
             },
             body:JSON.stringify(user),
-            
         }).then((res)=>res.json()).then((res)=>{
-            console.log(res);
+            console.log(res)
         })
-          
+        //console.log(user);
     }
 
   return (
     <div>
-        Signup<br></br>
+        <h1>SignUp</h1><br></br>
         <label>Email</label>
         <input type="text" name="email" onChange={Change}/><br></br>
         <label>Password</label>
