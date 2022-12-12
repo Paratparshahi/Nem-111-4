@@ -1,3 +1,4 @@
+import { Button } from '@chakra-ui/react';
 import React from 'react'
 import { useEffect } from 'react';
 import { useState } from 'react'
@@ -20,7 +21,18 @@ const Todo = () => {
             setTodos(res);
             console.log(res)
         })
-    },[])
+    },[todos])
+    function Delete(id){
+       fetch(`http://localhost:8005/Todos/${id}`,{
+        method:"DELETE",
+        headers:{
+            "Content-Type":"application/json"
+        }
+       }).then((res)=>res.json()).then(res=>{
+        setTodos(res);
+        console.log(res)
+       })
+    }
     function Change(e){
        const {name,value} = e.target;
        setTask({
@@ -52,6 +64,8 @@ const Todo = () => {
                 <h2>Status :{elem.status}</h2>
                 <h2>tag :{elem.tag}</h2>
                 <h2>taskname :{elem.taskname}</h2>
+                <button onClick={()=>Delete(elem._id)}>Delete</button>
+                <hr />
             </div>
             )
          })}
@@ -63,6 +77,7 @@ const Todo = () => {
         <label>Tag</label>
         <input type='text' name="tag" onChange={Change}/>
         <button onClick={Submit}>Submit</button>
+        
     </div>
   
   )

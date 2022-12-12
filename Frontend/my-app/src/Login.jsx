@@ -14,12 +14,12 @@ const Login = () => {
        })
        console.log(user);
     }
-      function Submit() {
-         fetch('http://localhost:8005/login', {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
+    function Submit() {
+      fetch('http://localhost:8005/login', {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+         },
             body:JSON.stringify(user)
         }).then((res)=>res.json()).then((res)=>{
             localStorage.setItem("token",res.token);
